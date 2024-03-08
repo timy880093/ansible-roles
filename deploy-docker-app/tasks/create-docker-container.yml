@@ -1,0 +1,38 @@
+- name: Remove existing {{ app.container.name }} Container on Windows
+  win_shell: |
+    docker rm -f "{{ app.container.name }}"; if ($?) { "Successfully removed" } else { "No such container" }
+  ignore_errors: true
+  when: is_windows
+
+- name: Create {{ app.container.name }} Container on Windows
+  win_shell: |
+    docker run -d --restart always --name "{{ app.container.name }}" `
+    {% for volume in app.container.volumes %}
+    -v "{{ volume }}" `
+    {% endfor %}
+    {% for port in app.container.ports %}
+    -p "{{ port }}" `
+    {% endfor %}
+    --log-driver json-file --log-opt max-size=100m --log-opt max-file=5 `
+    {% for network in app.container.networks %}
+    --network "{{ network.name }}" `
+    {% endfor %}
+    "{{ app.container.image }}"
+  register: output
+  when: is_windows
+
+- name: Create {{ app.container.name }} Container on Linux
+  community.docker.docker_container:
+    name: "{{ app.container.name }}"
+    image: "{{ app.container.image }}"
+    restart: yes
+    restart_policy: always
+    volumes: "{{ app.container.volumes }}"
+    ports: "{{ app.container.ports }}"
+    log_driver: "json-file"
+    log_options:
+      max-size: "100m"
+      max-file: "5"
+    networks: "{{ app.container.networks }}"
+  register: output
+  when: is_linux

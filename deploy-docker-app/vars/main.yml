@@ -1,0 +1,21 @@
+---
+# vars file for deploy-docker-app
+# Parameters that cannot be overwritten, processed directly and provided to tasks.
+volumes:
+  java: 
+    - "{{ remote_dir }}/{{ app_vars.name }}/application.properties:/app/application.properties"
+    - "{{ remote_dir }}/{{ app_vars.name }}/logback-spring.xml:/app/logback-spring.xml"
+    - "{{ remote_dir }}/{{ app_vars.name }}/logs:/app/logs"
+  nextjs:
+    - "{{ remote_dir }}/{{ app_vars.name }}/env:/app/.env"
+app:
+  container: 
+    name: "{{ app_vars.name }}"
+    image: "{{ app_vars.image }}"
+    volumes: "{{ volumes.java if language == 'java' else volumes.nextjs if language == 'nextjs' else volumes.nextjs }}"
+    ports: "{{ app_vars.ports }}"
+    networks: "{{ docker.networks }}" 
+  files:
+    remote: "{{ remote_dir }}/{{ app_vars.name }}"
+    # The ending slash '/' must be added, otherwise an additional folder will be duplicated.
+    local: "files/{{ group }}/{{ app_vars.name }}/"

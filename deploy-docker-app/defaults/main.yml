@@ -1,0 +1,6 @@
+---
+# defaults file for deploy-docker-app
+# Default parameters that can be overridden by roles/vars, group_vars, and inventory.
+is_windows: "{{ ansible_os_family == 'Windows' }}"
+is_linux: "{{ ansible_os_family != 'Windows' }}"
+remote_dir: "{{ 'C:\\application' if is_windows else '/home/gateweb/application' }}"

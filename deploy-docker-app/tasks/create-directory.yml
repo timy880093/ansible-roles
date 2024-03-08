@@ -1,0 +1,13 @@
+- name: Create directory on Windows
+  win_file:
+    path: "{{ app.files.remote }}"
+    state: directory
+    recurse: yes
+  when: is_windows
+
+- name: Create directory on Linux
+  file:
+    path: "{{ app.files.remote }}"
+    state: directory
+    recurse: yes
+  when: is_linux

@@ -1,0 +1,28 @@
+---
+# tasks file for deploy-docker-app
+# 警告：程式的 Dockerfile 必須指定 WORKDIR /app，否則 volumes 無法正確掛載
+- name: print OS family
+  debug:
+    msg: "OS Family: {{ ansible_os_family }}"
+
+- name: print vars 'app'
+  debug:
+    msg: "{{ app }} "
+
+- name: create directory on remote
+  include_tasks: create-directory.yml
+
+- name: copy config file to remote
+  copy:
+    src: "{{ app.files.local }}"
+    dest: "{{ app.files.remote }}"
+
+- name: create docker networks
+  include_tasks: create-docker-networks.yml
+
+- name: create docker container
+  include_tasks: create-docker-container.yml
+
+- name: "debug docker"
+  debug:
+    var: output
